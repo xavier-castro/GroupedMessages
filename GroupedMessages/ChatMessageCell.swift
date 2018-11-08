@@ -13,11 +13,38 @@ class ChatMessageCell: UITableViewCell {
     let messageLabel = UILabel() // Represents a message
     let bubbleBackgroundView = UIView()
     
+    var leadingConstraint: NSLayoutConstraint!
+    var trailingConstraint: NSLayoutConstraint!
+    
+    /* chatMessage variable
+     - Main purpose is to allow me to set incoming boolean on the cells
+     - Basically to determine between sending text vs reciecing text bubble
+     */
+    var chatMessage: ChatMessage! {
+        didSet {
+            bubbleBackgroundView.backgroundColor = chatMessage.isIncoming ? .white : .darkGray
+            messageLabel.textColor = chatMessage.isIncoming ? .black : .white
+            
+            messageLabel.text = chatMessage.text
+            
+            // Logic gate that decides if the bubble goes to the left or right
+            if chatMessage.isIncoming {
+                leadingConstraint.isActive = true
+                trailingConstraint.isActive = false
+            } else {
+                leadingConstraint.isActive = false
+                trailingConstraint.isActive = true
+            }
+        }
+    }
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        backgroundColor = .clear // Turns off the background color of cells to create the white color for the text
+        
         bubbleBackgroundView.backgroundColor = .yellow
-        bubbleBackgroundView.layer.cornerRadius = 5
+        bubbleBackgroundView.layer.cornerRadius = 12
         bubbleBackgroundView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(bubbleBackgroundView)
         
@@ -37,9 +64,9 @@ class ChatMessageCell: UITableViewCell {
             
             // messageLabel constraints
             messageLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 32),
-            messageLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 32),
             messageLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -32),
-            messageLabel.widthAnchor.constraint(equalToConstant: 250), // Makes the text appear to the left
+            
+            messageLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 250), // Removes excess spacing if text is short
             
             // bubbleBackgroundView constraints
             bubbleBackgroundView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: -16),
@@ -49,12 +76,14 @@ class ChatMessageCell: UITableViewCell {
             
         ]
         
-        
-        
         NSLayoutConstraint.activate(constraints)
         
+        leadingConstraint = messageLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 32)
+        leadingConstraint.isActive = false
         
-        // messageLabel.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+        trailingConstraint = messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32)
+        trailingConstraint.isActive = true
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
