@@ -63,16 +63,60 @@ class ViewController: UITableViewController {
         return chatMessages.count
     }
     
-    // Where the date object will go to seperate each section
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    // Adds padding to the UILabel
+    class DateHeaderLabel: UILabel {
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            
+            backgroundColor = .black
+            textColor = .white
+            textAlignment = .center
+            translatesAutoresizingMaskIntoConstraints = false // Enables auto layout
+            font = UIFont.boldSystemFont(ofSize: 14)
+        }
+        
+        required init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override var intrinsicContentSize: CGSize {
+            let originalContentSize = super.intrinsicContentSize
+            let height = originalContentSize.height + 12
+            layer.cornerRadius = height / 2 // Must get half the height for a circular look
+            layer.masksToBounds = true // Make your rounded corners show through your labels and components
+            return CGSize(width: originalContentSize.width + 20, height: height)
+        }
+    }
+    
+    
+    // Styling the date header so it looks nice
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        
         if let firstMessageInSection = chatMessages[section].first {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MM/dd/yyyy"
             let dateString = dateFormatter.string(from: firstMessageInSection.date)
-            return dateString
+            
+            let label = DateHeaderLabel()
+            label.text = dateString
+            
+            let containerView = UIView()
+            
+            // Centering the date with constraints
+            containerView.addSubview(label)
+            label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+            label.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+            
+            return containerView
         }
         
-        return "Section : \(Date())"
+        return nil
+    }
+    
+    // Adds padding around the date label
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 50
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

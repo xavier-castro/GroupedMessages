@@ -59,11 +59,12 @@ class ChatMessageCell: UITableViewCell {
          - the constant value is used to create spacing between each message
          - the 32 value in messageLabel is creating the spacing for each message
          - the 16 value in bubbleBackgroundView is creating padding inside the message bubble
+         - This is where the padding for each cell comes from
          */
         let constraints = [
             
             // messageLabel constraints
-            messageLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 32),
+            messageLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 16),
             messageLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -32),
             
             messageLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 250), // Removes excess spacing if text is short
