@@ -14,18 +14,35 @@ import UIKit
 struct ChatMessage {
     let text: String
     let isIncoming: Bool
+    let date: Date
+}
+
+extension Date {
+    static func dateFromCustomString(customString: String) -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+        return dateFormatter.date(from: customString) ?? Date()
+    }
 }
 
 class ViewController: UITableViewController {
     
     fileprivate let cellId = "id123"
     
+    // Created a two-dimensional array so we can split text messages into sections
     let chatMessages = [
-        ChatMessage(text: "Here is my very first message", isIncoming: true),
-        ChatMessage(text: "I'm going to message another long message that will word wrap", isIncoming: true),
-        ChatMessage(text: "I'm going to message another long message that will word wrap, I'm going to message another long message that will word wrap, I'm going to message another long message that will word wrap", isIncoming: false),
-        ChatMessage(text: "Yo, dawg, Whaddup", isIncoming: false),
-        ChatMessage(text: "This message should appear at the left side", isIncoming: true)
+        [
+            ChatMessage(text: "Here is my very first message", isIncoming: true, date: Date.dateFromCustomString(customString: "08/03/2018")),
+            ChatMessage(text: "I'm going to message another long message that will word wrap", isIncoming: true, date: Date.dateFromCustomString(customString: "08/03/2018")),
+            ],
+        [
+            ChatMessage(text: "I'm going to message another long message that will word wrap, I'm going to message another long message that will word wrap, I'm going to message another long message that will word wrap", isIncoming: false, date: Date.dateFromCustomString(customString: "09/15/2018")),
+            ChatMessage(text: "Yo, dawg, Whaddup", isIncoming: false, date: Date.dateFromCustomString(customString: "")),
+            ChatMessage(text: "This message should appear at the left side", isIncoming: true, date: Date.dateFromCustomString(customString: "10/11/2018"))
+        ],
+        [
+            ChatMessage(text: "Third Section message", isIncoming: true, date: Date.dateFromCustomString(customString: "10/11/2018"))
+        ]
     ]
     
     
@@ -41,23 +58,31 @@ class ViewController: UITableViewController {
         tableView.backgroundColor = UIColor(white: 0.95, alpha: 1) // Light gray color for table view
     }
     
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    // Duplicating texts so we can add date
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return chatMessages.count
+    }
+    
+    // Where the date object will go to seperate each section
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if let firstMessageInSection = chatMessages[section].first {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MM/dd/yyyy"
+            let dateString = dateFormatter.string(from: firstMessageInSection.date)
+            return dateString
+        }
+        
+        return "Section : \(Date())"
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return chatMessages[section].count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! ChatMessageCell
-        // cell.textLabel?.text = "We want to provide a longer string that is actually going to wrap onto the next line and maybe even a third line."
-        // cell.textLabel?.numberOfLines = 0 // Automatically sizes the rows for you
-        
-        let chatMessage = chatMessages[indexPath.row]
-        
-        //        cell.messageLabel.text = chatMessage.text
-        //        cell.isIncoming = chatMessage.isIncoming
-        
+        let chatMessage = chatMessages[indexPath.section][indexPath.row]
         cell.chatMessage = chatMessage
-        
-        
         return cell
     }
     
